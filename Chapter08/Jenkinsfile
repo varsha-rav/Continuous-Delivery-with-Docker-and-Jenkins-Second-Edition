@@ -28,5 +28,19 @@ pipeline {
                 '''
             }
         }
+        stage('Checktyle - static code analysis') {
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew checkstyleTest
+                '''
+                publishHTML (target: [
+                    reportDir: 'Chapter08/sample1/build/reports/checkstyle/test',
+                    reportFiles: 'test.html',
+                    reportName: "jacoco checkstyle",
+                    keepAll: true
+                ])
+            }
+        }
     }
 }
