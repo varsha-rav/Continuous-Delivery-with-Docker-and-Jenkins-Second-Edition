@@ -1,0 +1,24 @@
+pipeline {
+    agent {
+        label 'docker-agent'
+    }
+    stages {
+        stage('Checkout code and prepare environment') {
+            steps {
+                git url: 'https://github.com/varsha-rav/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
+                sh '''
+                cd Chapter08/sample1
+                chmod +x gradlew
+                '''
+            }
+        }
+        stage('Running test coverage') {
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew jacocoTestCoverageVerification
+                '''
+            }
+        }
+    }
+}
