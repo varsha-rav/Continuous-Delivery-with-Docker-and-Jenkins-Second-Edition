@@ -34,12 +34,16 @@ pipeline {
                 cd Chapter08/sample1
                 ./gradlew checkstyleTest
                 '''
+            }
+            post {
+                always {
                 publishHTML (target: [
-                    reportDir: 'Chapter08/sample1/build/reports/checkstyle/test',
+                    reportDir: 'Chapter08/sample1/build/reports/checkstyle',
                     reportFiles: 'test.html',
                     reportName: "jacoco checkstyle",
                     keepAll: true
                 ])
+                }
             }
         }
     }
