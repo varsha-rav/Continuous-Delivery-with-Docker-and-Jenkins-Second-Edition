@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh '''
                 cd Chapter08/sample1
-                ./gradlew jacocoTestCoverageVerification
+                ./gradlew test jacocoTestCoverageVerification
                 '''
             }
         }
