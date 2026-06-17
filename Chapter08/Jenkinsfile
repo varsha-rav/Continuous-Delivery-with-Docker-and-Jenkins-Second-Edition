@@ -21,6 +21,9 @@ pipeline {
             }
         }
         stage('Running test coverage') {
+            when {
+                changeset "**/*.java"
+            }
             steps {
                 sh '''
                 cd Chapter08/sample1
@@ -29,6 +32,9 @@ pipeline {
             }
         }
         stage('Checktyle - static code analysis') {
+            when {
+                changeset "**/*.java"
+            }
             steps {
                 sh '''
                 cd Chapter08/sample1
@@ -45,6 +51,14 @@ pipeline {
                 ])
                 }
             }
+        }
+    }
+    post {
+        success {
+            echo "pipeline ran perfectly"
+        }
+        failure {
+            echo "pipeline failed"
         }
     }
 }
