@@ -1,5 +1,8 @@
 # Chapter 8: Continuous Delivery Pipeline
 
+
+UMass Devops course change
+
 All the instructions assumes that you have:
 * Jenkins instance (with Java 8, Docker, and kubectl installed on Jenkins agents)
 * Docker registry (e.g. account on Docker Hub)
