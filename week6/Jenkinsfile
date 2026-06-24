@@ -1,0 +1,81 @@
+pipeline {
+    agent {
+        label 'docker-agent'
+    }
+    stages {
+        stage('Checkout code and prepare environment') {
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                chmod +x gradlew
+                '''
+            }
+        }
+        stage('Unit test for master or feature branches') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch '*feature*'
+                }
+            }
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew test
+                '''
+            }
+        }
+        stage('Running code coverage for master branch') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew test jacocoTestCoverageVerification
+                '''
+            }
+        }
+        stage('Checkstyle - static code analysis') {
+            when {
+                branch '*feature*'
+            }
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew checkstyleTest
+                '''
+            }
+            post {
+                always {
+                    publishHTML (target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        reportDir: 'Chapter08/sample1/build/reports/checkstyle',
+                        reportFiles: 'test.html',
+                        reportName: "jacoco checkstyle",
+                        keepAll: true
+                    ])
+                }
+            }
+        }
+        stage('Invalid branch') {
+            when {
+                expression {
+                    !env.BRANCH_NAME.contains('feature') && env.BRANCH_NAME != 'master'
+                }
+            }
+            steps {
+                error "Branch '${env.BRANCH_NAME}' is not allowed. Must be master or contain 'feature'."
+            }
+        }
+    }
+    post {
+        success {
+            echo "pipeline ran perfectly"
+        }
+        failure {
+            echo "pipeline failed"
+        }
+    }
+}
