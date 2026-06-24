@@ -1,6 +1,6 @@
 # Chapter 8: Continuous Delivery Pipeline
 
-
+Week 6 
 UMass Devops course change
 
 All the instructions assumes that you have:
