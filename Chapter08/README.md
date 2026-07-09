@@ -1,4 +1,5 @@
 # Chapter 8: Continuous Delivery Pipeline
+test git status
 Test
 Week 6 - new feature 
 
