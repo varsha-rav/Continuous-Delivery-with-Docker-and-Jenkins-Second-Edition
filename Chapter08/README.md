@@ -1,6 +1,8 @@
 # Chapter 8: Continuous Delivery Pipeline
 Test
 Week 6 - new feature 
+
+Feature change
 UMass Devops course change
 
 All the instructions assumes that you have:
