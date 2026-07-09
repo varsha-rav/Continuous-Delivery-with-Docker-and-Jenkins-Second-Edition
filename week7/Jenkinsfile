@@ -1,0 +1,89 @@
+pipeline {
+    agent {
+        label 'docker-agent'
+    }
+    stages {
+        stage('Checkout code and prepare environment') {
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                chmod +x gradlew
+                '''
+            }
+        }
+        stage('Code coverage for master branch only') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew test jacocoTestCoverageVerification
+                '''
+            }
+        }
+        stage('Unit testing for non master branch') {
+            when {
+                not { branch 'master' }
+            }
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew test
+                '''
+            }
+        }
+
+        stage('Jacoco report') {
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew jacocoTestReport
+                '''
+            }
+            post {
+                always {
+                    publishHTML (target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        reportDir: 'Chapter08/sample1/build/reports/jacoco/test/html',
+                        reportFiles: 'index.html',
+                        reportName: "Jacoco Report",
+                        keepAll: true
+                    ])
+                }
+            }
+        }
+        stage('Checkstyle - static code analysis for non master branch') {
+            when {
+                not { branch 'master' }
+            }
+            steps {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew checkstyleTest
+                '''
+            }
+            post {
+                always {
+                    publishHTML (target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        reportDir: 'Chapter08/sample1/build/reports/checkstyle',
+                        reportFiles: 'test.html',
+                        reportName: "Checkstyle Report",
+                        keepAll: true
+                    ])
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "tests pass!"
+        }
+        failure {
+            echo "tests fail!"
+        }
+    }
+}
