@@ -16,10 +16,12 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh '''
-                cd Chapter08/sample1
-                ./gradlew test jacocoTestCoverageVerification
-                '''
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh '''
+                    cd Chapter08/sample1
+                    ./gradlew test jacocoTestCoverageVerification
+                    '''
+                }
             }
         }
         stage('Unit testing for non master branch') {
@@ -27,10 +29,72 @@ pipeline {
                 not { branch 'master' }
             }
             steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 sh '''
                 cd Chapter08/sample1
                 ./gradlew test
                 '''
+                }
+            }
+        }
+
+        stage('Acceptance test for non master') {
+            when {
+                not {
+                    branch 'master'
+                }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh '''
+                    cd Chapter08/sample1
+                    ./gradlew acceptanceTest
+                    '''
+                }
+            }
+        }
+
+        stage('Smoke test for non master') {
+            when {
+                not {
+                    branch 'master'
+                }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh '''
+                    cd Chapter08/sample1
+                    ./gradlew smokeTest
+                    '''
+                }
+            }
+        }
+
+
+
+        stage('Checkstyle - static code analysis for non master branch') {
+            when {
+                not { branch 'master' }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                sh '''
+                cd Chapter08/sample1
+                ./gradlew checkstyleTest
+                '''
+                }
+            }
+            post {
+                always {
+                    publishHTML (target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        reportDir: 'Chapter08/sample1/build/reports/checkstyle',
+                        reportFiles: 'test.html',
+                        reportName: "Checkstyle Report",
+                        keepAll: true
+                    ])
+                }
             }
         }
 
@@ -44,7 +108,7 @@ pipeline {
             post {
                 always {
                     publishHTML (target: [
-                        allowMissing: false,
+                        allowMissing: true,
                         alwaysLinkToLastBuild: true,
                         reportDir: 'Chapter08/sample1/build/reports/jacoco/test/html',
                         reportFiles: 'index.html',
@@ -54,29 +118,7 @@ pipeline {
                 }
             }
         }
-        stage('Checkstyle - static code analysis for non master branch') {
-            when {
-                not { branch 'master' }
-            }
-            steps {
-                sh '''
-                cd Chapter08/sample1
-                ./gradlew checkstyleTest
-                '''
-            }
-            post {
-                always {
-                    publishHTML (target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        reportDir: 'Chapter08/sample1/build/reports/checkstyle',
-                        reportFiles: 'test.html',
-                        reportName: "Checkstyle Report",
-                        keepAll: true
-                    ])
-                }
-            }
-        }
+
     }
     post {
         success {
