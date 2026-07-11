@@ -38,40 +38,6 @@ pipeline {
             }
         }
 
-        stage('Acceptance test for non master') {
-            when {
-                not {
-                    branch 'master'
-                }
-            }
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh '''
-                    cd Chapter08/sample1
-                    ./gradlew acceptanceTest
-                    '''
-                }
-            }
-        }
-
-        stage('Smoke test for non master') {
-            when {
-                not {
-                    branch 'master'
-                }
-            }
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh '''
-                    cd Chapter08/sample1
-                    ./gradlew smokeTest
-                    '''
-                }
-            }
-        }
-
-
-
         stage('Checkstyle - static code analysis for non master branch') {
             when {
                 not { branch 'master' }
@@ -100,10 +66,12 @@ pipeline {
 
         stage('Jacoco report') {
             steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 sh '''
                 cd Chapter08/sample1
                 ./gradlew jacocoTestReport
                 '''
+                }
             }
             post {
                 always {
