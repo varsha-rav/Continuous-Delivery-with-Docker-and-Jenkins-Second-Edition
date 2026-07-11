@@ -1,7 +1,7 @@
 # Chapter 8: Continuous Delivery Pipeline
 
 Test
-Week 7 - new feature 
+Week 7 - new feature in master
 
 Feature change
 UMass Devops course change
