@@ -1,7 +1,7 @@
 # Chapter 8: Continuous Delivery Pipeline
 
 Test
-Week 7 - test push
+Week 7 - test PR
 
 Feature change
 UMass Devops course change
