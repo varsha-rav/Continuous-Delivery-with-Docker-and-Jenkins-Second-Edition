@@ -1,0 +1,4 @@
+# Kafka client for the Week 9 partitioning/consumer-group lab.
+# kafka-python-ng is the maintained drop-in successor to kafka-python
+# (still imported as `import kafka`) and supports modern Python (3.12+).
+kafka-python-ng==2.2.3

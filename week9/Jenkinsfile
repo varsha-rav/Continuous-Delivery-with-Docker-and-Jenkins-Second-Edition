@@ -1,0 +1,44 @@
+// Week 9 capstone — build an image, push it to the local registry, then
+// announce it on Kafka.
+//
+// Each stage declares the environment it needs (per-stage agents):
+//   - Build & push runs on the Jenkins node, which has the docker CLI + socket.
+//   - Announce runs inside the kafka-python image (which has the Kafka client),
+//     joined to the Kafka network so it can reach the broker by name.
+//
+// The registry (localhost:5001) is plain HTTP with no auth, so the push needs
+// NO certificates and NO `docker login` — Docker treats localhost registries as
+// insecure by default. That's the simpler version of the earlier TLS + htpasswd
+// setup.
+pipeline {
+    agent none
+    environment {
+        REGISTRY = 'localhost:5001'
+        IMAGE    = 'calculator'
+        TAG      = "${BUILD_NUMBER}"
+        TOPIC    = 'ci.images'
+        BROKER   = 'week9-kafka:29092'
+    }
+    stages {
+        stage('Build & push image') {
+            agent any
+            steps {
+                sh '''
+                    docker build -t ${REGISTRY}/${IMAGE}:${TAG} week9/app
+                    docker push ${REGISTRY}/${IMAGE}:${TAG}
+                '''
+            }
+        }
+        stage('Announce to Kafka') {
+            agent {
+                docker {
+                    image 'localhost:5001/kafka-python:1'
+                    args '--network week9_default'
+                }
+            }
+            steps {
+                sh 'python week9/publish_event.py'
+            }
+        }
+    }
+}
