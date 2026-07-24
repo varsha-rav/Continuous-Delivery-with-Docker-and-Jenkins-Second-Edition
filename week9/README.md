@@ -7,6 +7,7 @@ Two things this week:
 - **The capstone step** (`Jenkinsfile`) — your pipeline publishes one `ImagePushed`
   event to Kafka. *(the running capstone; consuming it comes later)*
 
+
 ## Files
 | File | Purpose |
 |------|---------|
