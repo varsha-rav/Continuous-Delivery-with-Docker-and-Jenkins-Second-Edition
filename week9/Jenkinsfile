@@ -21,7 +21,7 @@ pipeline {
     }
     stages {
         stage('Build & push image') {
-            agent { label 'docker-agent' 
+            agent { label 'built-in' 
                   }
             steps {
                 sh '''
