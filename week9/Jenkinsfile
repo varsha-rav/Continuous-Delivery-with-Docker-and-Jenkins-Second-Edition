@@ -31,7 +31,7 @@ pipeline {
             }
         }
         stage('Announce to Kafka') {
-            agent {
+            agent { label 'built-in' }
                 docker {
                     image 'localhost:5001/kafka-python:1'
                     args '--network week9_default'
