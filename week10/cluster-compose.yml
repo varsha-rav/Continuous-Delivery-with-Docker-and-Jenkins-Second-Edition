@@ -1,0 +1,50 @@
+# Week 10 (optional, Pattern 5) — a 3-broker KRaft cluster to watch a partition
+# survive a broker failure. Run it on its OWN, separate from the lab's single broker:
+#
+#   docker compose -f cluster-compose.yml -p w10 up -d
+#   ./demo.sh
+#   docker compose -f cluster-compose.yml -p w10 down
+#
+# Clients here run inside the containers (the demo uses docker exec), so no host
+# ports are published and this will not collide with docker-compose.yml.
+x-broker: &broker
+  image: apache/kafka:3.9.0
+  environment: &env
+    KAFKA_PROCESS_ROLES: broker,controller
+    KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093
+    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+    KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    # Cluster-wide defaults: three copies of every partition, two must be in sync.
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+    KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+    KAFKA_MIN_INSYNC_REPLICAS: 2
+    KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+services:
+  kafka-1:
+    <<: *broker
+    container_name: w10-kafka-1
+    environment:
+      <<: *env
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:29092
+  kafka-2:
+    <<: *broker
+    container_name: w10-kafka-2
+    environment:
+      <<: *env
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:29092
+  kafka-3:
+    <<: *broker
+    container_name: w10-kafka-3
+    environment:
+      <<: *env
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:29092

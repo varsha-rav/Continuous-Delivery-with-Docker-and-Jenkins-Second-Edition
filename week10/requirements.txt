@@ -1,0 +1,2 @@
+# Python 3.14 needs kafka-python-ng (the maintained fork); plain kafka-python won't import.
+kafka-python-ng==2.2.3
